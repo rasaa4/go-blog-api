@@ -2,6 +2,7 @@ package handler
 
 import (
 	"blog-api/internal/domain"
+	"blog-api/internal/dto"
 	"blog-api/internal/response"
 	"blog-api/internal/usecase"
 	"encoding/json"
@@ -21,8 +22,8 @@ func NewPostHandler(usecase *usecase.PostUsecase) *PostHandler {
 
 func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
 
-	var post domain.Post
-	err := json.NewDecoder(r.Body).Decode(&post)
+	var req dto.CreatedPostRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, "invalid body")
 
@@ -34,7 +35,11 @@ func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
 		response.Error(w, http.StatusUnauthorized, "invalid user")
 		return
 	}
-	post.UserID = int(uid)
+	post := domain.Post{
+		Title:   req.Title,
+		Content: req.Content,
+		UserID:  int(uid),
+	}
 
 	posted, err := h.usecase.Create(post)
 	if err != nil {
@@ -133,14 +138,19 @@ func (h *PostHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//decoding body
-	var post domain.Post
-	err = json.NewDecoder(r.Body).Decode(&post)
+	var req dto.UpdatePostRequest
+	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, "invalid body")
 
 		return
 	}
-	post.ID = id
+	post := domain.Post{
+		ID:      id,
+		Title:   req.Title,
+		Content: req.Content,
+		UserID:  existingPost.ID,
+	}
 	err = h.usecase.Update(post)
 	if err != nil {
 		response.Error(w, http.StatusInternalServerError, "internal server error")

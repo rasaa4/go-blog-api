@@ -2,6 +2,7 @@ package handler
 
 import (
 	"blog-api/internal/domain"
+	"blog-api/internal/dto"
 	"blog-api/internal/response"
 	"blog-api/internal/usecase"
 	"encoding/json"
@@ -18,11 +19,15 @@ func NewUserHandler(usecase *usecase.UserUsecase) *UserHandler {
 
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 
-	var user domain.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+	var req dto.RegisterUserRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, "invalid body")
 		return
+	}
+	user := domain.User{
+		Username: req.Username,
+		Password: req.Password,
 	}
 	createdUser, err := h.usecase.Register(user)
 	if err != nil {
@@ -34,13 +39,14 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 }
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 
-	var user domain.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+	var req dto.LoginUserRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, "invalid body")
 		return
 	}
-	token, err := h.usecase.Login(user.Username, user.Password)
+	token, err := h.usecase.Login(
+		req.Username, req.Password)
 	if err != nil {
 		response.Error(w, http.StatusUnauthorized, "invalid credentials")
 		return
