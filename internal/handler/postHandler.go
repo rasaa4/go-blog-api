@@ -29,6 +29,10 @@ func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+	if err := req.Validate(); err != nil {
+		response.Error(w, http.StatusBadRequest, err.Error())
+		return
+	}
 	userID := r.Context().Value("user_id")
 	uid, ok := userID.(float64)
 	if !ok {
@@ -145,11 +149,15 @@ func (h *PostHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+	if err := req.Validate(); err != nil {
+		response.Error(w, http.StatusBadRequest, err.Error())
+		return
+	}
 	post := domain.Post{
 		ID:      id,
 		Title:   req.Title,
 		Content: req.Content,
-		UserID:  existingPost.ID,
+		UserID:  existingPost.UserID,
 	}
 	err = h.usecase.Update(post)
 	if err != nil {

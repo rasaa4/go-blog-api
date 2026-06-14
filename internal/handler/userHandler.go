@@ -25,6 +25,11 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		response.Error(w, http.StatusBadRequest, "invalid body")
 		return
 	}
+
+	if err := req.Validate(); err != nil {
+		response.Error(w, http.StatusBadRequest, err.Error())
+		return
+	}
 	user := domain.User{
 		Username: req.Username,
 		Password: req.Password,
@@ -44,6 +49,11 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, "invalid body")
 		return
+	}
+	if err := req.Validate(); err != nil {
+		response.Error(w, http.StatusBadRequest, err.Error())
+		return
+
 	}
 	token, err := h.usecase.Login(
 		req.Username, req.Password)
