@@ -3,14 +3,12 @@ package handler
 import (
 	"blog-api/internal/domain"
 	"blog-api/internal/dto"
+	"blog-api/internal/helper"
 	"blog-api/internal/response"
 	"blog-api/internal/richerror"
 	"blog-api/internal/usecase"
 	"encoding/json"
 	"net/http"
-	"strconv"
-
-	"github.com/go-chi/chi/v5"
 )
 
 type PostHandler struct {
@@ -41,8 +39,8 @@ func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
 		response.Error(w, rErr.Kind().HTTPStatus(), rErr.Error())
 		return
 	}
-	userID := r.Context().Value("user_id")
-	uid, ok := userID.(float64)
+
+	uid, ok := helper.GetUserID(r)
 	if !ok {
 		rErr := richerror.New("Post.Create").
 			WithKind(richerror.KindUnauthorized).
@@ -85,8 +83,7 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 
 func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := helper.GetID(r)
 	if err != nil {
 		rErr := richerror.New("Post.GetByID").
 			WithKind(richerror.KindInvalid).
@@ -110,8 +107,7 @@ func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 func (h *PostHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	//id from path
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := helper.GetID(r)
 	if err != nil {
 		rErr := richerror.New("Post.Delete").
 			WithKind(richerror.KindInvalid).
@@ -121,8 +117,7 @@ func (h *PostHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//id from jwt
-	userID := r.Context().Value("user_id")
-	uid, ok := userID.(float64)
+	uid, ok := helper.GetUserID(r)
 	if !ok {
 		rErr := richerror.New("Post.Delete").
 			WithKind(richerror.KindUnauthorized).
@@ -165,8 +160,7 @@ func (h *PostHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	//گرفتن ایدی از url
 
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := helper.GetID(r)
 	if err != nil {
 		rErr := richerror.New("Post.Update").
 			WithKind(richerror.KindInvalid).
@@ -176,8 +170,7 @@ func (h *PostHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//گرفتن یوزر ایدی از jwt
-	userID := r.Context().Value("user_id")
-	uid, ok := userID.(float64)
+	uid, ok := helper.GetUserID(r)
 	if !ok {
 		rErr := richerror.New("Post.Update").
 			WithKind(richerror.KindUnauthorized).
