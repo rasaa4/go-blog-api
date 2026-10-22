@@ -11,6 +11,10 @@ type LoginUserRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
+type UserResponse struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+}
 
 func (r RegisterUserRequest) Validate() error {
 	return validation.ValidateStruct(&r,

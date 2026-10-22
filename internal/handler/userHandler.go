@@ -58,7 +58,10 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.Success(w, createdUser)
+	response.Success(w, dto.UserResponse{
+		ID:       createdUser.ID,
+		Username: createdUser.Username,
+	})
 }
 
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
