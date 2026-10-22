@@ -28,10 +28,10 @@ func main() {
 	postHandler := handler.NewPostHandler(postUsecase)
 
 	r := chi.NewRouter()
-	r.Post("register", userHandler.Register)
+	r.Post("/register", userHandler.Register)
 	r.Post("/login", userHandler.Login)
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.JWTAuth("secret"))
+		r.Use(middleware.JWTAuth(cfg.JWTSecret))
 		r.Post("/posts", postHandler.Create)
 		r.Get("/posts", postHandler.GetPosts)
 		r.Get("/posts/{id}", postHandler.GetPostByID)
