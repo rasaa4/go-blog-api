@@ -10,6 +10,10 @@ services:
       MYSQL_PASSWORD: ${DB_PASS}
     ports:
       - "3306:3306"
+    volumes:
+      - blog-db-data:/var/lib/mysql
+      - ./migrations/000001_create_users.up.sql:/docker-entrypoint-initdb.d/001_create_users.sql
+      - ./migrations/000002_create_posts.up.sql:/docker-entrypoint-initdb.d/002_create_posts.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
       interval: 5s
@@ -29,3 +33,6 @@ services:
       DB_PASS: ${DB_PASS}
       DB_NAME: ${DB_NAME}
       JWT_SECRET: ${JWT_SECRET}
+
+volumes:
+  blog-db-data:
